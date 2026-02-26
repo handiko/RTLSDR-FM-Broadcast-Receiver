@@ -1,36 +1,100 @@
-# RTLSDR-FM-Broadcast-Receiver
-Yet another tutorial on FM Broadcast Receiver using RTLSDR on GNU Radio Companion 3.10
+# 📻 RTLSDR FM Broadcast Receiver: A Step-by-Step DSP Tutorial
 
-## The Full Flowgraph
-![](./rtlsdr_fmrx.png)
+Building an FM receiver is the quintessential "Hello World" of Software Defined Radio. This project walks you through creating a Wideband FM (WBFM) receiver using **GNU Radio Companion (GRC) 3.10** and an **RTL-SDR** dongle.
 
-## Explaination
-### RTLSDR Source
-I am using the "RTL-SDR Source" block as an abstraction layer for the RTL-SDR device. To utilize this device, I usually set the highest reliable sampling rate of the RTL-SDR, which is 2.4 MHz or 2.4 Msps (Mega samples per second). This way, it could receive the entire RF spectrum from -1.2 MHz to +1.2 MHz from the center frequency. The goal of using the highest reliable sampling rate is to improve the overall dynamic range of the RTL-SDR.
+Rather than just a "plug-and-play" project, this README serves as a tutorial on how we manipulate raw RF waves into listenable music.
 
-The center frequency is set to be the desired FM broadcast station frequency, which is tunable using the QT Range block (slider).
-The RF Gain of this block is also configurable using the QT Range block. 
+---
 
-### FFT Filter
-This filter is an LPF (Low Pass Filter) to select the desired RF Spectrum portion or "channel" to be processed further. 
-The picture below illustrates this channel selection process. The width of this channel is set to the width of the fm broadcast channel, which is 200kHz. I chose 240kHz so that it would capture its entire channel without distortion and have enough room to spare.
-![](./full_spectrum.png)
+## 🎯 The Big Picture
+The goal is to capture a slice of the radio spectrum, isolate a specific station, demodulate the frequency changes into audio, and filter out the noise.
 
-When we "tune" to a specific radio station, actually, we "slide" the entire spectrum to fall into this "channel".
-![](./received_ch.png)
+### The Full Flowgraph
+Here is the complete architecture we will be building:
 
-After the selection, it would become something like this:
-![](./channellized.png)
+![The Full Flowgraph](./rtlsdr_fmrx.png)
 
-### Rational Resampler
-After we select the channel that we want to process using an LPF, we "decimate" or scale down the sampling rate, so that the subsequent processes would be easier to perform, in-term of CPU and memory usage. This was done using the "Rational Resampler" block. 
-![](./decimated.png)
+---
 
-The decimation is done to reduce the sample rate from the "full spectrum" sample rate (2.4 Msps) to the channel sampler rate (ch_rate = 240 ksps).
+## 🛠 Prerequisites
+* **Hardware:** RTL-SDR Dongle (RTL2832U) and an antenna tuned for 88–108 MHz.
+* **Software:** * GNU Radio 3.10.x
+    * `gr-osmosdr` (The driver block that lets GNU Radio talk to your RTL-SDR).
 
-### WBFM Receive and Low Pass Filter
-This block is quite straightforward. It demodulates the received channel and extracts the Audio components of the received FM Station.
-The WBFM Receive block could also reduce the output sample rate (audio rate) to a lower bandwidth. I chose 24 ksps to match the audio sink (soundcard) that I use.
-The Low Pass Filter block is used to further reduce the "FM Noise" that might still be present to reduce the background noise just enough to a manageable level.
-The Volume control (AF Gain) is also performed in this LPF block.
+---
 
+## 🏗 Step-by-Step Breakdown
+
+### 1. Signal Acquisition (The RTL-SDR Source)
+The process starts at the **RTL-SDR Source** block. 
+
+* **Sample Rate:** Set to **2.4 Msps** ($2,400,000$ samples per second). 
+* **Why?** The RTL-SDR is most stable at this rate. It gives us a $2.4\text{ MHz}$ "window" into the RF spectrum, allowing us to see multiple stations at once.
+* **Tuning:** We use a `QT GUI Range` variable to slide our center frequency. 
+
+**Visualizing the Raw Data:**
+Before we do anything else, we look at the raw input. This image shows the full $2.4\text{ MHz}$ bandwidth. The "peaks" you see are various local radio stations.
+
+![Full Spectrum](./full_spectrum.png)
+
+---
+
+### 2. Tuning and Channel Selection
+When we "tune" to a station, we are essentially shifting the entire spectrum so that our desired station sits at the **$0\text{ Hz}$ (Baseband)** center point.
+
+![Received Channel](./received_ch.png)
+
+To isolate that station, we use an **FFT Filter** (Low Pass Filter):
+* **Cutoff:** $150\text{ kHz}$
+* **Transition Width:** $25\text{ kHz}$
+
+FM stations are technically $200\text{ kHz}$ wide. We use a slightly wider filter ($240\text{ kHz}$) to ensure we don't "clip" the edges of the music (which causes distortion), while still blocking the neighboring stations.
+
+**The result after filtering:**
+![Channelized Signal](./channellized.png)
+
+---
+
+### 3. Efficiency via Decimation (Rational Resampler)
+Our computer doesn't need to process $2.4\text{ million}$ samples per second just to play audio that only requires $24,000$ samples per second. Keeping the rate high would waste CPU power and potentially cause audio stuttering.
+
+We use the **Rational Resampler** to **Decimate** the signal by a factor of 10.
+* **Input Rate:** $2.4\text{ MHz}$
+* **Decimation:** 10
+* **New Rate ($ch\_rate$):** $240\text{ kHz}$
+
+As you can see below, the signal looks the same, but the "X-axis" (the sample rate) has been scaled down significantly.
+
+![Decimated Signal](./decimated.png)
+
+---
+
+### 4. Demodulation (WBFM Receive)
+Up until this point, the data is still **Complex IQ data** (Radio waves). The **WBFM Receive** block performs the mathematical magic of "Quadrature Demodulation." It looks at the *change in frequency* over time and converts that into a *change in voltage* (Audio).
+
+* **Audio Decimation:** We decimate by another factor of 10 here.
+* **Final Audio Rate:** $24\text{ kHz}$ (A standard rate that most soundcards can handle easily).
+
+---
+
+### 5. Final Polish & Output
+Even after demodulation, there is often high-frequency "hiss" or static. We add a final **Low Pass Filter** with a cutoff of **$10\text{ kHz}$** to clean up the audio.
+
+* **AF Gain:** A simple multiplier that acts as your volume knob.
+* **Audio Sink:** This block sends the samples to your speakers.
+
+---
+
+## 🚀 How to Run
+1. Plug in your RTL-SDR.
+2. Open `rtlsdr_fmrx.grc` in GNU Radio Companion.
+3. Click the **Play** icon (or press F6).
+4. Use the **Tune** slider to find a station. 
+5. Adjust **RF Gain** if the signal is weak, and **AF Gain** for volume.
+
+## 💡 Pro-Tips for Better Reception
+* **The Antenna Matters:** A simple "rabbit ear" antenna works best if extended to about $75\text{ cm}$ (the quarter-wavelength for the FM band).
+* **Gain Staging:** If you see the "peaks" in your FFT sink hitting the very top of the graph and flattening out, your **RF Gain** is too high (clipping). Turn it down until the signal looks clean.
+
+---
+*Tutorial created by [Your Name/GitHub Handle]. Feel free to star this repo if it helped you understand SDR!*
