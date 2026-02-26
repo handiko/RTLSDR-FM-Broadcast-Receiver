@@ -97,4 +97,4 @@ Even after demodulation, there is often high-frequency "hiss" or static. We add 
 * **Gain Staging:** If you see the "peaks" in your FFT sink hitting the very top of the graph and flattening out, your **RF Gain** is too high (clipping). Turn it down until the signal looks clean.
 
 ---
-*Tutorial created by [Your Name/GitHub Handle]. Feel free to star this repo if it helped you understand SDR!*
+*Tutorial created by handiko. Feel free to star this repo if it helped you understand SDR!*
