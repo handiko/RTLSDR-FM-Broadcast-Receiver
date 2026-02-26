@@ -45,7 +45,7 @@ When we "tune" to a station, we are essentially shifting the entire spectrum so 
 ![Received Channel](./received_ch.png)
 
 To isolate that station, we use an **FFT Filter** (Low Pass Filter):
-* **Cutoff:** $150\text{ kHz}$
+* **Cutoff:** $120\text{ kHz}$
 * **Transition Width:** $25\text{ kHz}$
 
 FM stations are technically $200\text{ kHz}$ wide. We use a slightly wider filter ($240\text{ kHz}$) to ensure we don't "clip" the edges of the music (which causes distortion), while still blocking the neighboring stations.
