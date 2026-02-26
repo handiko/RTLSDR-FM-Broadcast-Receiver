@@ -11,5 +11,6 @@ The center frequency is set to be the desired FM broadcast station frequency, wh
 The RF Gain of this block is also configurable using the QT Range block. The goal of using the highest reliable sampling rate is to improve the overall dynamic range of the RTL-SDR.
 
 ### FFT Filter
-This filter is to select the desired RF Spectrum portion or "channel" to be processed further. The picture below illustrates this channel selection process.
+This filter is to select the desired RF Spectrum portion or "channel" to be processed further. The picture below illustrates this channel selection process. The width of this channel is set to the width of the fm broadcast channel, which is 200kHz. I chose 240kHz so that it would capture its entire channel without distortion and have enough room to spare.
 ![](./full_spectrum.png)
+When we "tune" to a specific radio station, actually, we "slide" the entire spectrum to fall into this "channel".
