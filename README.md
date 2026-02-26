@@ -61,7 +61,7 @@ Our computer doesn't need to process $2.4\text{ million}$ samples per second jus
 We use the **Rational Resampler** to **Decimate** the signal by a factor of 10.
 * **Input Rate:** $2.4\text{ MHz}$
 * **Decimation:** 10
-* **New Rate ($ch\_rate$):** $240\text{ kHz}$
+* **New Rate (ch_rate):** $240\text{ kHz}$
 
 As you can see below, the signal looks the same, but the "X-axis" (the sample rate) has been scaled down significantly.
 
