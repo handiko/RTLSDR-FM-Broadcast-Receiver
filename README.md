@@ -12,9 +12,23 @@ The center frequency is set to be the desired FM broadcast station frequency, wh
 The RF Gain of this block is also configurable using the QT Range block. 
 
 ### FFT Filter
-This filter is to select the desired RF Spectrum portion or "channel" to be processed further. 
+This filter is an LPF (Low Pass Filter) to select the desired RF Spectrum portion or "channel" to be processed further. 
 The picture below illustrates this channel selection process. The width of this channel is set to the width of the fm broadcast channel, which is 200kHz. I chose 240kHz so that it would capture its entire channel without distortion and have enough room to spare.
 ![](./full_spectrum.png)
 
 When we "tune" to a specific radio station, actually, we "slide" the entire spectrum to fall into this "channel".
 ![](./received_ch.png)
+
+After the selection, it would become something like this:
+![](./channellized.png)
+
+### Rational Resampler
+After we select the channel that we want to process using an LPF, we "decimate" or scale down the sampling rate, so that the subsequent processes would be easier to perform, in-term of CPU and memory usage. This was done using the "Rational Resampler" block. 
+![](./decimated.png)
+
+The decimation is done to reduce the sample rate from the "full spectrum" sample rate (2.4 Msps) to the channel sampler rate (ch_rate = 240 ksps).
+
+### WBFM Receive and Low Pass Filter
+This block is quite straightforward. It demodulates the received channel and extracts the Audio components of the received FM Station.
+The WBFM Receive block could also reduce the output sample rate (audio rate) to a lower bandwidth. I chose 24 ksps to match the audio sink (soundcard) that I use.
+The Low Pass Filter block is used to further reduce the "FM Noise" that might still be present to reduce the background noise just enough to a manageable level.
