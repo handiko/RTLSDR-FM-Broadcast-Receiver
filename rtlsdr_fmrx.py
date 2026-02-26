@@ -68,7 +68,7 @@ class rtlsdr_fmrx(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate = 2.4e6
         self.rfgain = rfgain = 10.0
         self.ch_rate = ch_rate = 240e3
-        self.ch_lpf = ch_lpf = firdes.low_pass(1.0, samp_rate, 150e3,25e3, window.WIN_HAMMING, 6.76)
+        self.ch_lpf = ch_lpf = firdes.low_pass(1.0, samp_rate, 120e3,25e3, window.WIN_HAMMING, 6.76)
         self.cfreq = cfreq = 102.2
         self.af_rate = af_rate = 24e3
         self.af_gain = af_gain = -3.0
@@ -256,7 +256,7 @@ class rtlsdr_fmrx(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.set_ch_lpf(firdes.low_pass(1.0, self.samp_rate, 150e3, 25e3, window.WIN_HAMMING, 6.76))
+        self.set_ch_lpf(firdes.low_pass(1.0, self.samp_rate, 120e3, 25e3, window.WIN_HAMMING, 6.76))
         self.qtgui_freq_sink_x_0.set_frequency_range((self.cfreq*1e6), self.samp_rate)
         self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
 

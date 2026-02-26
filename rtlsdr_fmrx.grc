@@ -92,7 +92,7 @@ blocks:
   parameters:
     beta: '6.76'
     comment: LPF Taps used in the FFT Filter
-    cutoff_freq: 150e3
+    cutoff_freq: 120e3
     gain: '1.0'
     samp_rate: samp_rate
     value: ''
