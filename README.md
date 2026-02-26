@@ -32,3 +32,5 @@ The decimation is done to reduce the sample rate from the "full spectrum" sample
 This block is quite straightforward. It demodulates the received channel and extracts the Audio components of the received FM Station.
 The WBFM Receive block could also reduce the output sample rate (audio rate) to a lower bandwidth. I chose 24 ksps to match the audio sink (soundcard) that I use.
 The Low Pass Filter block is used to further reduce the "FM Noise" that might still be present to reduce the background noise just enough to a manageable level.
+The Volume control (AF Gain) is also performed in this LPF block.
+
